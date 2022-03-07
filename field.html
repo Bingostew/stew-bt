@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<span id="test" style="color: blue">testing</span>
+<body>
+    <div id = "field"></div>
+</body>
+
+<Style>
+    #field{
+        position:absolute;
+        margin : 0px;
+    }
+    .player{
+        background-color:red;
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        margin : 0px;
+    }
+    .hb{
+        height: 10%;
+        width: 100%;
+        outline: 2px solid black;
+        corner-radius: 2px;
+    }
+    .hb > div{
+        width : 100%;
+        height : 100%;
+        background-color: green;
+    }
+</Style>
+<script src="player.js"></script>
+<script src="util.js"></script>
+<script>
+    // Constants
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const playerSize = 50;
+
+    // UI Init
+    var test = document.getElementById("test");
+    var field = document.getElementById("field");
+    var p1 = document.createElement("div");
+    var p2 = document.createElement("div");
+    var p1Sprite = document.createElement("img");
+    var p2Sprite = document.createElement("img");
+    var p1hbC = document.createElement("div");
+    var p2hbC = document.createElement("div");
+    var p1hb = document.createElement("div");
+    var p2hb = document.createElement("div");
+    p1.className = "player";
+    p2.className = "player";
+    p1hbC.className = "hb";
+    p2hbC.className = "hb";
+    p1hbC.appendChild(p1hb);
+    p2hbC.appendChild(p2hb);
+    p1.appendChild(p1hbC);
+    p1.appendChild(p1Sprite);
+    p2.appendChild(p2hbC);
+    p2.appendChild(p2Sprite);
+    field.appendChild(p1);
+    field.appendChild(p2);
+
+    p1.style.left = windowWidth / 4  + "px";
+    p1.style.top = windowHeight / 2 + "px";
+    p2.style.left = windowWidth / 4 * 3  +  "px";
+    p2.style.top = windowHeight / 2 + "px";
+
+    // Events
+    document.addEventListener("keydown", (event) => {
+        p1KeyState[event.key] = true;
+        p2KeyState[event.key] = true;
+    });
+    document.addEventListener("keyup", (event) => {
+        p1KeyState[event.key] = false;
+        p2KeyState[event.key] = false;
+
+    });
+
+    // Game Loop
+    function loop(){
+        p1PosVector = 
+            p1KeyState["ArrowDown"] ? [p1PosVector[0], 2] 
+            : p1KeyState["ArrowUp"] ? [p1PosVector[0], -2]
+            : [p1PosVector[0], 0]; 
+
+        p1PosVector = 
+            p1KeyState["ArrowLeft"] ? [-2, p1PosVector[1]]
+            : p1KeyState["ArrowRight"] ?  [2, p1PosVector[1]]
+            : [0, p1PosVector[1]];
+
+        p2PosVector = 
+            p2KeyState["s"] ? [p2PosVector[0], 2] 
+            : p2KeyState["w"] ? [p2PosVector[0], -2]
+            : [p2PosVector[0], 0]; 
+
+        p2PosVector = 
+            p2KeyState["a"] ? [-2, p2PosVector[1]]
+            : p2KeyState["d"] ?  [2, p2PosVector[1]]
+            : [0, p2PosVector[1]];
+
+
+        singleActionKeyPressed(p1KeyState, p1KeyToggle, "p", projectile);
+
+        movePlayer(p1, p1PosVector[0], p1PosVector[1], playerDefaultMaxSpeed);
+        movePlayer(p2, p2PosVector[0], p2PosVector[1], playerDefaultMaxSpeed);
+        setTimeout(loop, 10);
+    }
+
+    loop();
+
+    function singleActionKeyPressed(playerKeyState, playerKeyToggle, key, action){
+        if(playerKeyState[key] && !playerKeyToggle[key]){
+            action();
+            playerKeyToggle[key] = true;
+        }
+        else if (!playerKeyState[key]){
+            playerKeyToggle[key] = false;
+        }
+    }
+    function projectile(){
+        var ball = document.createElement("button");
+        ball.style.borderRadius = "5px";
+        ball.style.position = "absolute";
+        ball.style.backgroundColor = "blue";
+        ball.style.top = p1.style.top;
+        ball.style.left = p1.style.left;
+        field.appendChild(ball);
+    }
+</script>
