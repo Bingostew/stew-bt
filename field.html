@@ -20,7 +20,7 @@
         height: 10%;
         width: 100%;
         outline: 2px solid black;
-        corner-radius: 2px;
+        background-color: white;
     }
     .hb > div{
         width : 100%;
@@ -28,8 +28,13 @@
         background-color: green;
     }
 </Style>
-<script src="player.js"></script>
+<script> 
+   var test = document.getElementById("test");
+</script>
+
 <script src="util.js"></script>
+<script src="player.js"></script>
+<script src="object.js"></script>
 <script>
     // Constants
     const windowWidth = window.innerWidth;
@@ -37,7 +42,6 @@
     const playerSize = 50;
 
     // UI Init
-    var test = document.getElementById("test");
     var field = document.getElementById("field");
     var p1 = document.createElement("div");
     var p2 = document.createElement("div");
@@ -99,10 +103,28 @@
             : [0, p2PosVector[1]];
 
 
-        singleActionKeyPressed(p1KeyState, p1KeyToggle, "p", projectile);
+        var p1xString = p1.style.left;
+        var p1x = parseFloat(p1xString.substring(0, p1xString.length -2));
 
+        var p1yString = p1.style.top;
+        var p1y = parseFloat(p1yString.substring(0, p1yString.length -2));
+
+        var p2xString = p2.style.left;
+        var p2x = parseFloat(p2xString.substring(0, p2xString.length -2));
+
+        var p2yString = p2.style.top;
+        var p2y = parseFloat(p2yString.substring(0, p2yString.length -2));
+
+        singleActionKeyPressed(p1KeyState, p1KeyToggle, "p", () => {projectile(false, true)});
+        
         movePlayer(p1, p1PosVector[0], p1PosVector[1], playerDefaultMaxSpeed);
         movePlayer(p2, p2PosVector[0], p2PosVector[1], playerDefaultMaxSpeed);
+        moveObjects();
+        
+        checkPlayerCollision(
+            new Rectangle(p1x, p1y, playerSize, playerSize),
+            new Rectangle(p2x, p2y, playerSize, playerSize)
+        );
         setTimeout(loop, 10);
     }
 
@@ -117,13 +139,35 @@
             playerKeyToggle[key] = false;
         }
     }
-    function projectile(){
+
+    function depleteHealthBar(playerNum, scale){
+        if(playerNum == 1){
+            p1hb.style.width = playerSize * scale + "px";
+        }
+        else{
+            p2hb.style.width = playerSize * scale + "px";
+        }
+    }
+
+    function projectile(isDamageingP1, isDamagingP2){
         var ball = document.createElement("button");
-        ball.style.borderRadius = "5px";
         ball.style.position = "absolute";
         ball.style.backgroundColor = "blue";
         ball.style.top = p1.style.top;
         ball.style.left = p1.style.left;
+        ball.style.width = 50 + "px";
+        ball.style.height = 50 + "px"; 
         field.appendChild(ball);
+
+        var id = generateName();
+        registerObject(id, ball)
+        registerObjectMovement(id, [20, 0]);
+        registerObjectOnHitPlayerEvent(id, function(playerNum){
+            if(isDamageingP1 && playerNum == 1 || isDamagingP2 && playerNum == 2){
+                takeDamage(playerNum, 10, depleteHealthBar);
+                unregisterObject(id);
+                field.removeChild(ball);
+            }
+        });
     }
 </script>

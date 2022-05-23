@@ -20,8 +20,12 @@ function movePlayer(player, dx, dy, maxSpeed){
 }
 
 function takeDamage(playerNum, damage, healthBarDepletionEvent){
-    playerHealth[playerNum] -= damage;
-    let percentHealth = playerHealth[playerNum] / playerMaxHealth[playerNum] * 100;
-    healthBarDepletionEvent(percentHealth);
+    playerHealth[playerNum - 1] -= damage;
+    if(playerHealth[playerNum - 1] < 0){
+        playerHealth[playerNum - 1] = 0;
+    }
+    let healthScale = playerHealth[playerNum - 1] / playerMaxHealth[playerNum - 1];
+
+    healthBarDepletionEvent(playerNum, healthScale);
 }
 
