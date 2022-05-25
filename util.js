@@ -29,17 +29,14 @@ function generateName(){
     var result = '';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     var charactersLength = characters.length;
-    for ( var i = 0; i < 10; i++ ) {
-      result += characters.charAt(Math.floor(Math.random() * 
-        charactersLength));
+    while(nameRegistry.includes(result)){
+        for ( var i = 0; i < 10; i++ ) {
+            result += characters.charAt(Math.floor(Math.random() * 
+            charactersLength));
+        }
    }
-   if(nameRegistry.includes(result)){
-       generateName();
-   }
-   else{
-       nameRegistry.push(result);
-     return result;
-   }
+   nameRegistry.push(result);
+   return result;
 }
 
 function isBetween(min, max, val){
@@ -47,9 +44,13 @@ function isBetween(min, max, val){
 }
 
 function isRectOverlapping(rect1, rect2){
- 
     return (isBetween(rect1.x, rect1.x + rect1.width, rect2.x) 
     || isBetween(rect1.x, rect1.x + rect1.width, rect2.x + rect2.width)) 
     && (isBetween(rect1.y, rect1.y + rect1.height, rect2.y) 
-    || isBetween(rect1.y, rect1.y + rect1.height, rect2.y + rect2.height)); 
+    || isBetween(rect1.y, rect1.y + rect1.height, rect2.y + rect2.height)) 
+    || 
+    (isBetween(rect2.x, rect2.x + rect2.width, rect1.x) 
+    || isBetween(rect2.x, rect2.x + rect2.width, rect1.x + rect1.width)) 
+    && (isBetween(rect2.y, rect2.y + rect2.height, rect1.y) 
+    || isBetween(rect2.y, rect2.y + rect2.height, rect1.y + rect1.height)); 
 }

@@ -30,16 +30,17 @@
 </Style>
 <script> 
    var test = document.getElementById("test");
+    
+   // Constants
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const playerSize = 50;
 </script>
 
 <script src="util.js"></script>
 <script src="player.js"></script>
 <script src="object.js"></script>
 <script>
-    // Constants
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
-    const playerSize = 50;
 
     // UI Init
     var field = document.getElementById("field");
@@ -68,6 +69,10 @@
     p1.style.top = windowHeight / 2 + "px";
     p2.style.left = windowWidth / 4 * 3  +  "px";
     p2.style.top = windowHeight / 2 + "px";
+
+    box(100, 150, 50, 200); 
+    box(500, 50, 50, 100); 
+    box(700, 150, 50, 200); 
 
     // Events
     document.addEventListener("keydown", (event) => {
@@ -117,14 +122,19 @@
 
         singleActionKeyPressed(p1KeyState, p1KeyToggle, "p", () => {projectile(false, true)});
         
-        movePlayer(p1, p1PosVector[0], p1PosVector[1], playerDefaultMaxSpeed);
-        movePlayer(p2, p2PosVector[0], p2PosVector[1], playerDefaultMaxSpeed);
+        movePlayer(p1, 1, p1PosVector[0], p1PosVector[1], playerDefaultMaxSpeed);
+        movePlayer(p2, 2, p2PosVector[0], p2PosVector[1], playerDefaultMaxSpeed);
         moveObjects();
         
-        checkPlayerCollision(
-            new Rectangle(p1x, p1y, playerSize, playerSize),
-            new Rectangle(p2x, p2y, playerSize, playerSize)
+        var p1Rect = new Rectangle(p1x, p1y, playerSize, playerSize);
+        var p2Rect = new Rectangle(p2x, p2y, playerSize, playerSize);
+        checkPlayerObjectHit(
+           p1Rect,
+           p2Rect
         );
+        checkObjectWindowBoundCollision();
+        checkPlayerMovementCollision(p1Rect, p2Rect, p1PosVector, p2PosVector);
+
         setTimeout(loop, 10);
     }
 
@@ -169,5 +179,25 @@
                 field.removeChild(ball);
             }
         });
+        registerObjectOnHitEnvEvent(id, function(){
+            unregisterObject(id);
+            field.removeChild(ball);
+        });
+    }
+
+    function box(x, y, width, height){
+        var box = document.createElement("button");
+        box.style.position = "absolute";
+        box.style.backgroundColor = "red";
+        box.style.top = y + "px";
+        box.style.left = x + "px";
+        box.style.width = width + "px";
+        box.style.height = height + "px"; 
+        field.appendChild(box);
+
+        var id = generateName();
+        test.innerHTML += " " + id + " ";
+        registerObject(id, box)
+        registerObjectOnCollidePlayerEvent(id, setPlayerCollided);
     }
 </script>
